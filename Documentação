@@ -1,0 +1,81 @@
+Ao iniciar o projeto, deve-se atentar aos pré-requisitos, ter instalado o Vagrant, e o VirtualBox. 
+Caso não tenha instalado, instalar seguindo esses passos:
+
+1. Instalação do Vagrant:
+    - Abrir o terminal e digitar o seguinte comando:
+    - sudo apt update
+    - sudo apt install vagrant
+
+2. Instalação do VirtualBox:
+    - Abrir o terminal e digitar o seguinte comando:
+    - wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+
+3. Criação do Diretório do Projeto:
+    - Abrir o terminal e digitar o seguinte comando:
+    - mkdir redes
+    - cd redes
+
+4. Criação do arquivo Vagrantfile
+    - Entrar no diretório criado pelo terminal, digitar o seguinte comando:
+    - cd redes
+    - Criar o arquivo Vagrantfile, através do seguinte comando:
+    - nano Vagrantfile
+    - Inserir todo o conteúdo para o Vagrant, neste caso em específico:
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+  config.vm.define "vm1" do |vm1|
+    vm1.vm.network "private_network", type: "dhcp", virtualbox__intnet: true
+    vm1.vm.network "private_network", type: "dhcp", virtualbox__intnet: "intnet"
+    vm1.vm.network "private_network", type: "static", virtualbox__intnet: "intnet", ip: "192.168.50.10"
+    vm1.vm.provider "virtualbox" do |vb|
+      vb.memory = "512"
+    end
+    vm1.vm.hostname = "vm1"
+    vm1.vm.provision "shell", path: "shell/provision-vm1.sh"
+    vm1.vm.synced_folder "./pastavm1", "/var/www/html"
+    vm1.vm.network "private_network", type: "dhcp", virtualbox__intnet: "intnet"
+  end
+
+  config.vm.define "vm2" do |vm2|
+    vm2.vm.network "private_network", type: "dhcp", virtualbox__intnet: "intnet"
+    vm2.vm.network "private_network", type: "static", virtualbox__intnet: "intnet", ip: "192.168.50.20"
+    vm2.vm.provider "virtualbox" do |vb|
+      vb.memory = "512"
+    end
+    vm2.vm.hostname = "vm2"
+    vm2.vm.provision "shell", path: "shell/provision-vm2.sh"
+  end
+
+  config.vm.define "vm3" do |vm3|
+    vm3.vm.box = "ubuntu/bionic64"
+    vm3.vm.network "private_network", type: "static", virtualbox__intnet: "intnet", ip: "192.168.50.29"
+    vm3.vm.network "public_network", type: "dhcp"
+    vm3.vm.provision "shell", path: "shell/provision-vm3.sh"
+  end
+end
+    - Salvar e fechar o arquivo.
+
+5. Criação de arquivos Shell para cada vm.
+
+6. Inserir os conteúdos necessários para cada vm rodar.
+
+7. Inicializar as máquinas virtuais.
+    - Entrar com o terminal dentro do diretório, digitar o seguinte comando:
+    - vagrant up.
+
+8. Acesso às Máquinas Virtuais:
+    - Utilizar o comando vagrant ssh vm...
+    - vagrant ssh vm1
+    - vagrant ssh vm2
+    - vagrant ssh vm3
+
+9. Testar um ping para ver se a conexão com a internet foi estabelecida
+    - Dentro da máquina virtual, utilizando o comando que foi mencionado no passo 8.
+    - Digitar o seguinte comando:
+    - ping google.com
+
+10.  Exibir a tabela de roteamento do sistema para confirmar cada conexão das vms. 
+    - Dentro da VM (passo 8), digitar o seguinte comando:
+    - route -n
+O qual trará o endereço IP configurado para a VM.
